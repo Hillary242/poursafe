@@ -1,0 +1,252 @@
+/* PourSafe — the whole stylesheet.
+   Lifted from the Ops Tracker's shared globals.css (its .fld- rules) when
+   PourSafe became its own app, 14 Nov 2026. The brand rules are in
+   public/poursafe/BRAND-HANDOFF.md. */
+
+:root {
+  --ink: #1F2124; --mut: #4A4D52; --line: #d6d4ce; --bg: #EDECE8; --card: #fff;
+  --accent: #F26B1D; --accent-soft: #fde7d9;
+}
+* { box-sizing: border-box; }
+html, body { padding: 0; margin: 0; }
+body { font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #EDECE8; color: #1F2124; line-height: 1.45; -webkit-text-size-adjust: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* ---------- The field app (0260): /field ----------
+   Its own shell, phone-first: one column, thumb-sized targets, 16px inputs so
+   iOS doesn't zoom on focus. Everything under .fld-. On a desktop it stays a
+   phone-width column in the middle of the page. */
+.fld { min-height: 100vh; background: var(--bg); }
+.fld-top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+  background: var(--ink); color: #fff; }
+.fld-brand { font-size: 16px; color: #fff; letter-spacing: .02em; margin-right: auto; }
+.fld-brand b { color: #93c5fd; }
+.fld-who { font-size: 13px; opacity: .8; }
+.fld-office { font-size: 12.5px; color: #cbd5e1; text-decoration: underline; }
+.fld-out { border: 1px solid rgba(255,255,255,.25); background: none; color: #fff; border-radius: 8px; padding: 5px 10px;
+  font-size: 12.5px; cursor: pointer; }
+.fld-main { max-width: 560px; margin: 0 auto; padding: 14px 16px 40px; }
+.fld-h1 { font-size: 21px; margin: 0; flex: 1; min-width: 0; }
+.fld-h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--mut); margin: 20px 0 8px; }
+.fld-head { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+.fld-back { border: 0; background: none; font-size: 30px; line-height: 1; color: var(--accent); padding: 0 4px 2px 0; cursor: pointer; }
+.fld-sub { display: flex; flex-direction: column; margin: -4px 0 12px; }
+.fld-sub b { font-size: 19px; }
+.fld-mut { color: var(--mut); font-size: 13px; }
+.fld-soon { text-align: center; margin-top: 24px; }
+.fld-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.fld-card h2 { margin: 0 0 6px; font-size: 17px; }
+
+/* Home tiles */
+.fld-tiles { display: grid; gap: 12px; margin-top: 14px; }
+.fld-tile { position: relative; display: grid; grid-template-columns: 46px 1fr; grid-template-rows: auto auto; column-gap: 12px;
+  align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; color: var(--ink); }
+.fld-tile b { font-size: 17px; }
+.fld-tile small { grid-column: 2; color: var(--mut); font-size: 13px; }
+.fld-tile-ic { grid-row: 1 / 3; width: 46px; height: 46px; border-radius: 12px; background: var(--accent-soft); display: grid;
+  place-items: center; font-size: 22px; }
+.fld-tile-urgent { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+.fld-tile-urgent small { color: #fde2e2; }
+.fld-tile-urgent .fld-tile-ic { background: rgba(255,255,255,.18); color: #fff; }
+.fld-badge { position: absolute; top: 12px; right: 12px; font-style: normal; background: #b91c1c; color: #fff; border-radius: 999px;
+  min-width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 800; padding: 0 6px; }
+
+/* Lists */
+.fld-row { display: grid; gap: 3px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 8px; color: var(--ink); }
+.fld-row b { font-size: 15.5px; }
+.fld-st { justify-self: start; display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  border-radius: 999px; padding: 2px 8px; background: #fef3c7; color: #92400e; white-space: nowrap; }
+.fld-st.submitted { background: #e0ecff; color: #1d4ed8; }
+.fld-st.returned { background: #fde2e2; color: #9f1239; }
+.fld-st.reviewed { background: #dcfce7; color: #166534; }
+
+/* Buttons */
+.fld-big { display: block; width: 100%; margin: 8px 0; padding: 15px; border: 0; border-radius: 12px; background: var(--accent);
+  color: #fff; font-size: 16.5px; font-weight: 800; text-align: center; cursor: pointer; }
+.fld-big:disabled { background: #c7d2e3; cursor: not-allowed; }
+.fld-big.ghost { background: #fff; color: var(--accent); border: 1px solid #c7d7f5; }
+.fld-big.warn { background: #9f1239; }
+.fld-link { display: block; width: 100%; border: 0; background: none; color: var(--accent); font-weight: 700; font-size: 14px;
+  padding: 9px; cursor: pointer; text-align: center; }
+.fld-link:disabled { color: #9aa4b2; cursor: default; }
+.fld-link.danger { color: #b5532b; margin-top: 16px; }
+.fld-add { width: 100%; border: 1px dashed #b9c8e0; background: none; border-radius: 12px; padding: 12px; color: var(--accent);
+  font-weight: 700; font-size: 15px; cursor: pointer; }
+.fld-foot { position: sticky; bottom: 0; padding: 12px 0 8px; background: linear-gradient(transparent, var(--bg) 18px); }
+.fld-foot .fld-mut { margin: 0 0 4px; }
+
+/* The case-file checklist */
+.fld-list { display: flex; flex-direction: column; gap: 8px; }
+.fld-item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; padding: 13px 12px; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--ink); font-family: inherit; }
+.fld-item:disabled { cursor: default; }
+.fld-item.back { border-color: #f3b4b4; background: #fff7f7; }
+.fld-tick { flex: 0 0 28px; height: 28px; border-radius: 50%; border: 2px solid #cbd3df; display: grid; place-items: center;
+  color: #fff; font-size: 15px; }
+.fld-item.done .fld-tick { background: #2f6b32; border-color: #2f6b32; }
+.fld-item-t { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fld-item-t small { font-weight: 500; color: var(--mut); font-size: 12.5px; }
+.fld-item-t em { font-style: normal; font-weight: 600; color: #9f1239; font-size: 12.5px; }
+.fld-chev { color: #b0b8c6; font-size: 24px; }
+
+/* Notices */
+.fld-alert { background: #fff1f1; border: 1px solid #f6c9c9; color: #9f1239; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 10px 0; }
+.fld-info { background: #eef4ff; border: 1px solid #d3e0fa; color: #1e3a8a; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 10px 0; }
+.fld-ok { background: #ecfdf3; border: 1px solid #bbf0cf; color: #166534; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 10px 0; }
+
+/* Forms, sized for a thumb */
+.fld-form { display: flex; flex-direction: column; }
+.fld-f { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+.fld-f > span { font-size: 12.5px; font-weight: 700; color: var(--mut); }
+.fld-f input, .fld-f select, .fld-f textarea { font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid #cfd6e1;
+  border-radius: 10px; background: #fff; width: 100%; color: var(--ink); }
+.fld-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fld-seg { display: flex; background: #e9edf3; border-radius: 11px; padding: 3px; gap: 3px; margin-bottom: 13px; }
+.fld-seg button { flex: 1; border: 0; background: none; padding: 10px 6px; border-radius: 9px; font-weight: 700; font-size: 14px;
+  color: var(--mut); cursor: pointer; font-family: inherit; }
+.fld-seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.fld-radio { display: flex; gap: 10px; align-items: center; padding: 12px 2px; font-size: 15.5px; border-bottom: 1px solid var(--line); }
+.fld-radio input { width: 20px; height: 20px; }
+.fld-paper { background: #fffbea; border: 1px solid #f3e3a1; border-radius: 10px; padding: 16px 12px; text-align: center; margin-bottom: 12px; font-size: 14.5px; }
+.fld-paper small { color: var(--mut); }
+.fld-paper.sm { padding: 8px 12px; text-align: left; font-size: 13.5px; }
+.fld-photos { display: flex; flex-wrap: wrap; gap: 8px; }
+.fld-photo { width: 96px; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.fld-photo img, .fld-photo i { width: 96px; height: 96px; object-fit: cover; border-radius: 10px; background: #e9edf3; display: grid;
+  place-items: center; font-style: normal; font-size: 26px; }
+.fld-photo small { font-size: 11px; color: var(--mut); }
+.fld-photos.sm .fld-photo, .fld-photos.sm .fld-photo img, .fld-photos.sm .fld-photo i { width: 60px; height: 60px; font-size: 18px; }
+
+/* Signing */
+.fld-sign-who { font-size: 23px; font-weight: 800; margin-bottom: 8px; }
+.fld-sign-text { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 16.5px;
+  max-height: 34vh; overflow-y: auto; white-space: pre-wrap; margin-bottom: 12px; }
+.fld-attest { font-size: 14px; background: #f1f4f8; border-radius: 8px; padding: 9px 11px; margin: 0 0 10px; }
+.fld-attest p { margin: 0; }
+.fld-attest p + p { margin-top: 7px; }
+.fld-attest-en { color: var(--mut); font-size: 12.5px; }
+.fld-copies { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; font-size: 12.5px; color: var(--mut); }
+.fld-copies a { color: var(--accent); font-weight: 700; }
+.fld-pad { position: relative; height: 180px; background: #fff; border: 2px solid #cfd6e1; border-radius: 12px; touch-action: none;
+  overflow: hidden; }
+.fld-pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.fld-pad-line { position: absolute; left: 16px; right: 16px; bottom: 34px; border-bottom: 1px solid #c3cad6; pointer-events: none;
+  font-size: 12.5px; color: #9aa4b2; display: flex; gap: 8px; align-items: flex-end; padding-bottom: 2px; }
+.fld-pad-line span { font-weight: 800; color: #6b7280; }
+.fld-pad-clear { position: absolute; top: 6px; right: 6px; border: 0; background: #eef1f5; border-radius: 6px; font-size: 13px;
+  padding: 4px 10px; cursor: pointer; }
+.fld-sig { display: flex; gap: 12px; align-items: center; background: #f6fbf6; border: 1px solid #cfe6cf; border-radius: 10px;
+  padding: 8px 10px; margin: 8px 0; }
+.fld-sig img { width: 120px; height: 44px; object-fit: contain; background: #fff; border-radius: 6px; }
+.fld-sig div { display: flex; flex-direction: column; font-size: 13px; }
+.fld-sig span { color: var(--mut); }
+
+/* The Safety Director's review */
+.fld-ritem { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; margin-top: 10px; }
+.fld-ritem.ok { border-color: #bfe0c0; }
+.fld-ritem.back { border-color: #f3b4b4; background: #fffafa; }
+.fld-ritem-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+.fld-rbtns { display: inline-flex; gap: 5px; flex: 0 0 auto; }
+.fld-rbtns button { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 7px 11px; font-weight: 700;
+  font-size: 13.5px; cursor: pointer; color: var(--mut); font-family: inherit; }
+.fld-rbtns button.on.ok { background: #2f6b32; border-color: #2f6b32; color: #fff; }
+.fld-rbtns button.on.back { background: #9f1239; border-color: #9f1239; color: #fff; }
+.fld-pill { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 8px; }
+.fld-pill.ok { background: #dcfce7; color: #166534; }
+.fld-pill.back { background: #fde2e2; color: #9f1239; }
+.fld-quote { margin: 6px 0; padding: 9px 12px; background: #f6f7f9; border-left: 3px solid #cfd6e1; border-radius: 4px; font-size: 14px;
+  white-space: pre-wrap; }
+.fld-note { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid #f3b4b4; border-radius: 9px; margin-top: 8px; }
+
+/* ---------- PourSafe skin (the field app, 14 Nov) ----------
+   The brand handoff in public/poursafe/BRAND-HANDOFF.md: charcoal, orange,
+   concrete, slate; Archivo Black for headings, Inter 500/600 for the rest.
+   Orange is a fill and an accent — text ON orange is charcoal, and orange is
+   never used for small text. Built for sun glare and gloves: high contrast,
+   big targets. Everything stays under .fld. */
+.fld { --ps-charcoal: #1F2124; --ps-orange: #F26B1D; --ps-orange-dk: #d95a10; --ps-concrete: #EDECE8; --ps-slate: #4A4D52;
+  background: var(--ps-concrete); color: var(--ps-charcoal);
+  font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-weight: 500; }
+.fld .fld-top { background: var(--ps-charcoal); padding: 10px 14px; gap: 10px; }
+.fld .fld-brand { display: flex; align-items: center; margin-right: auto; }
+.fld .fld-wordmark { display: block; height: auto; }
+.fld .fld-logo { display: block; }
+.fld .fld-who { color: #d6d6d2; font-weight: 600; }
+.fld .fld-office { color: #d6d6d2; }
+.fld .fld-out { border-color: rgba(255,255,255,.3); font-weight: 600; min-height: 36px; }
+.fld .fld-h1 { font-family: "Archivo Black", Inter, sans-serif; font-weight: 400; letter-spacing: -0.02em; font-size: 23px; }
+.fld .fld-h2 { color: var(--ps-slate); font-weight: 600; letter-spacing: .2em; }
+.fld .fld-mut { color: var(--ps-slate); }
+.fld .fld-back { color: var(--ps-charcoal); min-width: 44px; min-height: 44px; }
+.fld .fld-sub b { font-family: "Archivo Black", Inter, sans-serif; font-weight: 400; letter-spacing: -0.01em; }
+
+/* Buttons: orange fill, charcoal text (~5:1). */
+.fld .fld-big { background: var(--ps-orange); color: var(--ps-charcoal); font-weight: 600; font-size: 17px; min-height: 54px; border-radius: 12px; }
+.fld .fld-big:active { background: var(--ps-orange-dk); }
+.fld .fld-big:disabled { background: #d3d1cb; color: #6f7175; }
+.fld .fld-big.ghost { background: #fff; color: var(--ps-charcoal); border: 2px solid var(--ps-charcoal); }
+.fld .fld-big.warn { background: var(--ps-charcoal); color: #fff; }
+.fld .fld-link { color: var(--ps-charcoal); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; }
+.fld .fld-link:disabled { color: #8a8c90; text-decoration: none; }
+.fld .fld-link.danger { color: #9f1239; }
+.fld .fld-add { border: 2px dashed var(--ps-slate); color: var(--ps-charcoal); font-weight: 600; min-height: 50px; }
+
+/* Home tiles */
+.fld .fld-tile { border: 1px solid #d6d4ce; min-height: 84px; }
+.fld .fld-tile b { font-weight: 600; }
+.fld .fld-tile small { color: var(--ps-slate); }
+.fld .fld-tile-ic { background: var(--ps-concrete); }
+.fld .fld-tile-urgent { background: var(--ps-orange); border-color: var(--ps-orange); color: var(--ps-charcoal); }
+.fld .fld-tile-urgent small { color: var(--ps-charcoal); }
+.fld .fld-tile-urgent .fld-tile-ic { background: var(--ps-charcoal); color: var(--ps-orange); }
+.fld .fld-badge { background: var(--ps-charcoal); }
+
+/* Lists, checklist, fields */
+.fld .fld-row, .fld .fld-item, .fld .fld-card, .fld .fld-ritem { border-color: #d6d4ce; }
+.fld .fld-item { min-height: 64px; }
+.fld .fld-item.done .fld-tick { background: var(--ps-charcoal); border-color: var(--ps-charcoal); }
+.fld .fld-f > span { color: var(--ps-slate); font-weight: 600; }
+.fld .fld-f input, .fld .fld-f select, .fld .fld-f textarea { border: 1.5px solid #bdbbb4; min-height: 48px; color: var(--ps-charcoal); }
+.fld .fld-f input:focus, .fld .fld-f select:focus, .fld .fld-f textarea:focus { outline: 3px solid var(--ps-orange); outline-offset: 1px; border-color: var(--ps-charcoal); }
+.fld .fld-seg { background: #dddbd5; }
+.fld .fld-seg button { color: var(--ps-slate); min-height: 44px; font-weight: 600; }
+.fld .fld-seg button.on { color: var(--ps-charcoal); }
+.fld .fld-rbtns button { min-height: 40px; }
+.fld .fld-rbtns button.on.ok { background: var(--ps-charcoal); border-color: var(--ps-charcoal); }
+.fld .fld-copies a { color: var(--ps-charcoal); text-decoration: underline; }
+.fld .fld-pad { border-color: var(--ps-charcoal); }
+/* The sticky bar under the bottom button fades into PourSafe's concrete — it
+   faded into the office app's grey, which showed as a pale panel (14 Nov). */
+.fld .fld-foot { background: linear-gradient(rgba(237,236,232,0), var(--ps-concrete) 18px); }
+.fld .fld-main { background: var(--ps-concrete); }
+
+/* EN / ES / PT */
+.fld-lang { display: inline-flex; border: 1px solid rgba(255,255,255,.3); border-radius: 9px; overflow: hidden; }
+.fld-lang button { border: 0; background: none; color: #d6d6d2; font: inherit; font-size: 12.5px; font-weight: 600;
+  min-width: 36px; min-height: 34px; padding: 0 6px; cursor: pointer; }
+.fld-lang button.on { background: var(--ps-orange, #F26B1D); color: var(--ps-charcoal, #1F2124); }
+.fld-signin .fld-lang { border-color: #bdbbb4; }
+.fld-signin .fld-lang button { color: var(--ps-slate); }
+
+/* Tagline with the hazard stripe — used sparingly, as the handoff asks. */
+.fld-tagline { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 12px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--ps-slate); margin: 14px 0 0; }
+.fld-stripe { display: inline-block; width: 34px; height: 10px; border-radius: 2px;
+  background: repeating-linear-gradient(-45deg, #1F2124 0 8px, #F26B1D 8px 16px); }
+
+/* The sign-in page */
+.fld-signin { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; position: relative; }
+.fld-signin-lang { position: absolute; top: 14px; right: 14px; }
+.fld-signin-card { width: min(420px, 100%); background: #fff; border-radius: 18px; padding: 30px 24px 22px; border: 1px solid #d6d4ce; }
+/* Centred and symmetrical (her note, 14 Nov): the wordmark over the tagline,
+   a hazard stripe either side — the right one mirrored so the two match. */
+.fld-signin-mark { display: flex; justify-content: center; }
+.fld-tagline-c { justify-content: center; margin: 16px 0 22px; text-align: center; }
+.fld-stripe-r { background: repeating-linear-gradient(45deg, #1F2124 0 8px, #F26B1D 8px 16px); }
+@media (max-width: 380px) { .fld-tagline-c { letter-spacing: .14em; gap: 8px; } .fld-tagline-c .fld-stripe { width: 22px; } }
+.fld-signin-foot { text-align: center; margin: 14px 0 0; }
+.fld .fld-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.fld .fld-google svg { background: #fff; border-radius: 50%; padding: 4px; box-sizing: content-box; }
