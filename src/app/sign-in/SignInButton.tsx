@@ -11,7 +11,7 @@ export function SignInButton({ label, busyLabel }: { label: string; busyLabel: s
     setBusy(true); setErr(null);
     const { error } = await createClient().auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${location.origin}/auth/callback?next=/` },
+      options: { redirectTo: `${location.origin}/auth/callback` },
     });
     if (error) { setErr(error.message); setBusy(false); }
   };
