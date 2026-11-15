@@ -3,10 +3,15 @@
 import { createHash, randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { queueAccidentFile, releaseHeldAccidentFiles } from "@/lib/filing";
 import { PART2_ATTEST, REVIEW_ATTEST, attestFor, type FieldStatement } from "@/lib/field";
 import { signedCopyPdf } from "@/lib/signedStatementPdf";
+import { reviewReportPdf } from "@/lib/reviewPdf";
+import { reviewCopyData } from "@/lib/reviewData";
+import { notify, pushReady, sendTo } from "@/lib/push";
+import { fieldDict } from "@/lib/fieldLang";
 
 /**
  * The field app's writes (0260).
@@ -43,13 +48,18 @@ export async function startReport(input: {
     p_occurred_on: input.occurredOn || null, p_person: input.person,
   });
   if (error) return { ok: false, error: error.message };
+  after(() => notify(supabase, data as string, "started"));
   bump();
   return { ok: true, id: data as string };
 }
 
 const BASIC_KEYS = ["kind", "occurred_on", "occurred_at", "location", "person_name", "person_kind",
-  "person_employer", "what_doing", "body_parts"] as const;  // never company_id — the Safety Director's (0261)
-const PART2_KEYS = ["sup_account", "sup_cause", "sup_regs"] as const;
+  "person_employer", "what_doing", "body_parts",
+  // the rest of Part One (0106 columns; asked since 15 Nov)
+  "person_title", "supervisor_name", "told_supervisor", "witness_names", "saw_doctor", "care_type",
+  "care_provider", "care_phone", "care_on", "care_at", "prior_injury", "prior_injury_when",
+] as const;  // never company_id — the Safety Director's (0261)
+const PART2_KEYS = ["sup_body_part", "sup_nature", "sup_account", "sup_cause", "sup_regs", "sup_medical_required"] as const;
 
 /** Part One's facts, or Part Two's text. Only those columns, whatever is sent. */
 export async function saveReport(input: { id: string; patch: Record<string, unknown> }): Promise<Result> {
@@ -74,11 +84,13 @@ export async function saveReport(input: { id: string; patch: Record<string, unkn
 }
 
 export async function setPrivate(input: {
-  id: string; dob: string; phone: string; address: string; employeeNo: string;
+  id: string; dob: string; phone: string; address: string; employeeNo: string; sex?: "male" | "female" | "";
 }): Promise<Result> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("field_set_private", {
     p_accident: input.id, p_dob: input.dob || null, p_phone: input.phone, p_address: input.address, p_employee_no: input.employeeNo,
+    // 0265's overload; without a sex given, the original five-argument call.
+    ...(input.sex ? { p_sex: input.sex } : {}),
   });
   if (error) return { ok: false, error: error.message };
   bump(input.id);
@@ -225,15 +237,20 @@ export async function setCompany(input: { id: string; companyId: string }): Prom
   const supabase = await createClient();
   const { error } = await supabase.rpc("field_set_company", { p_accident: input.id, p_company: input.companyId });
   if (error) return { ok: false, error: error.message };
-  const rel = await releaseHeldAccidentFiles(supabase, input.id);
+  // The company is saved; the held files go to its Drive folder after the
+  // reply — that step signs and queues each file and took seconds, which is
+  // why the company "didn't register right away" (first field test, 15 Nov).
+  // The review page shows each file's state, and live updates bring it in.
+  after(() => releaseHeldAccidentFiles(supabase, input.id));
   bump(input.id);
-  return rel.ok ? { ok: true } : { ok: true, note: rel.error };
+  return { ok: true };
 }
 
 export async function submitReport(id: string): Promise<Result> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("field_submit", { p_accident: id });
   if (error) return { ok: false, error: error.message };
+  after(() => notify(supabase, id, "submitted"));
   bump(id);
   return { ok: true };
 }
@@ -254,6 +271,7 @@ export async function sendBack(input: { id: string; checks: Checks }): Promise<R
   const supabase = await createClient();
   const { error } = await supabase.rpc("field_send_back", { p_accident: input.id, p_checks: input.checks });
   if (error) return { ok: false, error: error.message };
+  after(() => notify(supabase, input.id, "sent_back"));
   bump(input.id);
   return { ok: true };
 }
@@ -268,8 +286,69 @@ export async function signOff(input: { id: string; checks: Checks; png: string }
   // Anything still held goes now — the company is set by definition (0261).
   await releaseHeldAccidentFiles(supabase, input.id);
   const filed = await fileSignedCopy(supabase, sigId as string);
+  after(() => notify(supabase, input.id, "signed_off"));
   bump(input.id);
   return { ok: true, note: filed };
+}
+
+/* ---------- Part Three (0265) ---------- */
+
+const PART3_KEYS = ["severity", "made_by_role", "sex", "age", "department", "job_title", "body_parts", "nature",
+  "nature_detail", "employment_type", "months_employed", "months_in_job", "exact_location", "exact_time",
+  "workday_part", "n_statements", "n_photos", "n_maps", "ppe", "medical_required", "care_type", "visit_details",
+  "doctor_name", "facility_name", "written_by", "written_title", "written_dept", "written_on", "team_members",
+  "reviewed_by", "reviewed_title", "reviewed_on"];
+
+/** The Safety Director's Part Three — the whole step at once, through field_save_part3. */
+export async function savePart3(input: { id: string; p: Record<string, unknown> }): Promise<Result> {
+  const p: Record<string, unknown> = {};
+  for (const k of PART3_KEYS) {
+    if (!(k in input.p)) continue;
+    const v = input.p[k];
+    p[k] = v == null ? "" : typeof v === "boolean" ? v : String(v);
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("field_save_part3", { p_accident: input.id, p });
+  if (error) return { ok: false, error: error.message };
+  bump(input.id);
+  return { ok: true };
+}
+
+/* ---------- Phone notifications (0265) ---------- */
+
+/** This phone's push subscription, kept against the signed-in person. */
+export async function savePushSubscription(input: { endpoint: string; p256dh: string; auth: string }): Promise<Result> {
+  if (!pushReady()) return { ok: false, error: "not-set-up" };
+  if (!input.endpoint.startsWith("https://") || !input.p256dh || !input.auth) return { ok: false, error: "That subscription didn't come through." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Signed out." };
+  const { lang } = await fieldDict();
+  // The same phone, signed in as someone else before, is taken over.
+  await supabase.rpc("field_push_forget", { p_endpoint: input.endpoint });
+  const { error } = await supabase.from("push_subscriptions").insert({
+    user_id: user.id, endpoint: input.endpoint, p256dh: input.p256dh, auth: input.auth,
+    user_agent: await userAgent(), lang,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function deletePushSubscription(endpoint: string): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/** A test notification to this person's own phones. */
+export async function sendTestPush(): Promise<Result> {
+  if (!pushReady()) return { ok: false, error: "not-set-up" };
+  const supabase = await createClient();
+  const { data: subs, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth, lang");
+  if (error) return { ok: false, error: error.message };
+  await sendTo(supabase, (subs ?? []) as { endpoint: string; p256dh: string; auth: string; lang: string | null }[],
+    (t) => ({ title: "PourSafe", body: t.pushTest, url: "/" }));
+  return { ok: true };
 }
 
 /* ---------- The signed PDF copy ---------- */
@@ -314,8 +393,13 @@ async function fileSignedCopy(supabase: Supa, sigId: string): Promise<string | u
       a?.company_id ? supabase.from("payroll_companies").select("name, legal_name").eq("id", a.company_id).maybeSingle() : Promise.resolve({ data: null as any }),
     ]);
     const title = TITLE[s.kind === "statement" ? s.role ?? "witness" : s.kind] ?? "Signed statement";
-    const bytes = await signedCopyPdf({
-      title, company: co?.legal_name || co?.name || "", caseNo: a?.case_no ?? null, job: proj?.name ?? "",
+    const company = co?.legal_name || co?.name || "";
+    // The sign-off copy is the whole report — every statement in full, the
+    // photos, the fingerprints at the back (her fix, 15 Nov).
+    const bytes = s.kind === "review"
+      ? await reviewReportPdf(await reviewCopyData(supabase, s.accident_id, s, { company, job: proj?.name ?? "" }), await fonts())
+      : await signedCopyPdf({
+      title, company, caseNo: a?.case_no ?? null, job: proj?.name ?? "",
       occurredOn: a?.occurred_on ?? null, person: a?.person_name ?? null,
       signerName: s.signer_name, listedName: s.listed_name, role: s.kind === "statement" ? s.role : s.kind === "part2" ? "Supervisor" : "Safety Director",
       employer: w?.employer ?? null, phone: w?.phone ?? null, language: s.language, how: s.how, readBy: s.read_by,

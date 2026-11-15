@@ -26,9 +26,10 @@ function csp() {
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Content-Security-Policy", value: csp() },
-  // The camera is opened by the phone's own photo picker, not the page, so
-  // no permission is needed here.
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // camera=(self): Android Chrome applies this to the photo picker too — with
+  // camera=() its "Take photo" option disappeared and crews could only pick
+  // from the library (first field test, 15 Nov).
+  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },

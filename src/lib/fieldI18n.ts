@@ -14,6 +14,8 @@
  * the crews rely on them.
  */
 
+import { FORM_DICT } from "@/lib/formI18n";
+
 export type FieldLang = "en" | "es" | "pt";
 export const FIELD_LANGS: { code: FieldLang; label: string }[] = [
   { code: "en", label: "EN" }, { code: "es", label: "ES" }, { code: "pt", label: "PT" },
@@ -22,6 +24,7 @@ export const FIELD_LANG_COOKIE = "fld_lang";
 export const isFieldLang = (v: unknown): v is FieldLang => v === "en" || v === "es" || v === "pt";
 
 const en = {
+  ...FORM_DICT.en,
   // Shell
   signOut: "Sign out",
   officeApp: "Office app",
@@ -87,13 +90,13 @@ const en = {
   save: "Save",
   done: "Done",
   // Items
-  itemBasics: "What happened",
+  itemBasics: "Part One: Employee account",
   itemPrivate: "Injured person's details",
   itemInjured: "Injured worker's statement",
   itemInvolved: "Statement of person involved",
   itemWitness: (n: number) => `Witness ${n}`,
   itemPhotos: "Photos of the scene",
-  itemPart2: "Your investigation (Part Two)",
+  itemPart2: "Part Two: Supervisor’s investigation",
   // Item sublines
   subBasics: "When, where, what happened",
   subPrivateDone: "Entered — only the office can see these",
@@ -186,7 +189,7 @@ const en = {
   notePh: "e.g. back on Thursday",
   recordIt: "Record it",
   // Part Two
-  part2Title: "Your investigation",
+  part2Title: "Part Two: Supervisor’s Investigation Form",
   part2How: "How it happened — equipment and tools in use",
   part2Cause: "The cause",
   part2Regs: "Were safety regulations in place and used? PPE?",
@@ -237,6 +240,7 @@ const en = {
 export type FieldDict = typeof en;
 
 const es: FieldDict = {
+  ...FORM_DICT.es,
   signOut: "Cerrar sesión",
   officeApp: "App de oficina",
   noAccessTitle: "Todavía no tienes acceso",
@@ -294,13 +298,13 @@ const es: FieldDict = {
   saving: "Guardando…",
   save: "Guardar",
   done: "Listo",
-  itemBasics: "Qué pasó",
+  itemBasics: "Parte uno: Relato del empleado",
   itemPrivate: "Datos del lesionado",
   itemInjured: "Declaración del trabajador lesionado",
   itemInvolved: "Declaración de la persona involucrada",
   itemWitness: (n) => `Testigo ${n}`,
   itemPhotos: "Fotos del lugar",
-  itemPart2: "Tu investigación (Parte Dos)",
+  itemPart2: "Parte dos: Investigación del supervisor",
   subBasics: "Cuándo, dónde, qué pasó",
   subPrivateDone: "Ingresados — solo la oficina puede verlos",
   subPrivate: "Fecha de nacimiento, dirección, teléfono",
@@ -385,7 +389,7 @@ const es: FieldDict = {
   note: "Nota",
   notePh: "p. ej. regresa el jueves",
   recordIt: "Registrar",
-  part2Title: "Tu investigación",
+  part2Title: "Parte dos: Formulario de investigación del supervisor",
   part2How: "Cómo pasó — equipo y herramientas en uso",
   part2Cause: "La causa",
   part2Regs: "¿Había medidas de seguridad y se usaban? ¿EPP?",
@@ -433,6 +437,7 @@ const es: FieldDict = {
 };
 
 const pt: FieldDict = {
+  ...FORM_DICT.pt,
   signOut: "Sair",
   officeApp: "App do escritório",
   noAccessTitle: "Você ainda não tem acesso",
@@ -490,13 +495,13 @@ const pt: FieldDict = {
   saving: "Salvando…",
   save: "Salvar",
   done: "Pronto",
-  itemBasics: "O que aconteceu",
+  itemBasics: "Parte um: Relato do funcionário",
   itemPrivate: "Dados do acidentado",
   itemInjured: "Declaração do trabalhador acidentado",
   itemInvolved: "Declaração da pessoa envolvida",
   itemWitness: (n) => `Testemunha ${n}`,
   itemPhotos: "Fotos do local",
-  itemPart2: "Sua investigação (Parte Dois)",
+  itemPart2: "Parte dois: Investigação do supervisor",
   subBasics: "Quando, onde, o que aconteceu",
   subPrivateDone: "Preenchidos — só o escritório pode ver",
   subPrivate: "Data de nascimento, endereço, telefone",
@@ -581,7 +586,7 @@ const pt: FieldDict = {
   note: "Observação",
   notePh: "ex.: volta na quinta-feira",
   recordIt: "Registrar",
-  part2Title: "Sua investigação",
+  part2Title: "Parte dois: Formulário de investigação do supervisor",
   part2How: "Como aconteceu — equipamentos e ferramentas em uso",
   part2Cause: "A causa",
   part2Regs: "As normas de segurança estavam em vigor e sendo seguidas? EPI?",

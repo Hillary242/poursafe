@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { session } from "@/lib/session";
 import { fieldDict } from "@/lib/fieldLang";
+import { Notifications } from "../Notifications";
 
 /**
  * The field app's home: one tile per section. Accident reports are first;
@@ -47,6 +48,7 @@ export default async function FieldHome() {
           </Link>
         )}
       </div>
+      <Notifications director={director === true} publicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""} />
       <p className="fld-mut fld-soon">{t.moreComing}</p>
     </>
   );

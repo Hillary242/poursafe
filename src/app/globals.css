@@ -138,11 +138,14 @@ button { font-family: inherit; }
 .fld-pad-line span { font-weight: 800; color: #6b7280; }
 .fld-pad-clear { position: absolute; top: 6px; right: 6px; border: 0; background: #eef1f5; border-radius: 6px; font-size: 13px;
   padding: 4px 10px; cursor: pointer; }
-.fld-sig { display: flex; gap: 12px; align-items: center; background: #f6fbf6; border: 1px solid #cfe6cf; border-radius: 10px;
-  padding: 8px 10px; margin: 8px 0; }
-.fld-sig img { width: 120px; height: 44px; object-fit: contain; background: #fff; border-radius: 6px; }
-.fld-sig div { display: flex; flex-direction: column; font-size: 13px; }
+/* A signature card. Its signed PDF copies sit inside it, under a hairline
+   (they hung below the box before — first field test, 15 Nov). */
+.fld-sig { background: #f6fbf6; border: 1px solid #cfe6cf; border-radius: 10px; padding: 8px 10px; margin: 8px 0; }
+.fld-sig-row { display: flex; gap: 12px; align-items: center; }
+.fld-sig img { width: 120px; height: 44px; object-fit: contain; background: #fff; border-radius: 6px; flex: none; }
+.fld-sig-row > div { display: flex; flex-direction: column; font-size: 13px; min-width: 0; }
 .fld-sig span { color: var(--mut); }
+.fld-sig .fld-copies { margin: 8px 0 0; padding-top: 7px; border-top: 1px solid #cfe6cf; }
 
 /* The Safety Director's review */
 .fld-ritem { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; margin-top: 10px; }
@@ -250,3 +253,69 @@ button { font-family: inherit; }
 .fld-signin-foot { text-align: center; margin: 14px 0 0; }
 .fld .fld-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .fld .fld-google svg { background: #fff; border-radius: 50%; padding: 4px; box-sizing: content-box; }
+
+/* ---------- After the first field test (15 Nov) ---------- */
+
+/* EN / ES / PT always whole: on a narrower Android the header squeezed the
+   switch and its overflow:hidden cut PT off. The switch never shrinks; the
+   first name gives way first, then the wordmark. */
+.fld .fld-lang { flex: none; }
+.fld .fld-brand { min-width: 0; flex: 0 1 auto; }
+.fld .fld-brand svg, .fld .fld-brand img { max-width: 100%; }
+.fld .fld-who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 430px) { .fld .fld-who { display: none; } }
+@media (max-width: 370px) {
+  .fld .fld-top { gap: 6px; padding: 8px 10px; }
+  .fld .fld-brand { max-width: 104px; }
+  .fld-lang button { min-width: 32px; padding: 0 4px; }
+  .fld .fld-out { padding: 4px 8px; }
+}
+
+/* "Saving…" / "Saved ✓" — every write says when it has landed. */
+.fld-toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  z-index: 50; background: #166534; color: #fff; font-weight: 700; font-size: 14px; padding: 9px 16px; border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18); pointer-events: none; white-space: nowrap; }
+.fld-toast.busy { background: var(--ps-charcoal, #1F2124); }
+
+/* The form: its instructions, its notes, answers carried from Part One */
+.fld-help { font-size: 13px; line-height: 1.45; margin: 0 0 14px; }
+.fld-note-sm { font-size: 12.5px; margin: -4px 0 13px; font-style: italic; }
+.fld-ro b { font-size: 15.5px; font-weight: 600; padding: 2px 0; }
+.fld-ro i { font-weight: 500; font-style: normal; opacity: .75; }
+.fld-2 { align-items: end; }
+.fld-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; }
+.fld-3 > * { display: flex; flex-direction: column; gap: 4px; }
+.fld-3 small { font-size: 11.5px; color: var(--ps-slate, #4A4D52); font-weight: 600; }
+.fld-3 b { font-size: 18px; }
+.fld-3 input { font: inherit; font-size: 16px; padding: 9px 10px; border: 1.5px solid #bdbbb4; border-radius: 10px; min-width: 0; }
+.fld .fld-form .fld-h2 { font-size: 12px; text-transform: uppercase; margin: 22px 0 10px; padding-top: 12px; border-top: 1px solid #d6d4ce; }
+
+/* Choices that are more than two: chips that wrap (Part One care, Part Three) */
+.fld-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fld-chips button { border: 1.5px solid #bdbbb4; background: #fff; color: var(--ps-charcoal, #1F2124); border-radius: 999px;
+  padding: 8px 12px; min-height: 40px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.fld-chips button.on { background: var(--ps-charcoal, #1F2124); border-color: var(--ps-charcoal, #1F2124); color: #fff; }
+.fld .fld-f > .fld-seg { margin-bottom: 0; }
+
+/* Two ways to add a photo */
+.fld-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fld-photo-btns .fld-big { margin: 4px 0; font-size: 15px; padding: 12px 8px; }
+.fld-paper .fld-photo-btns { margin-top: 10px; }
+
+/* Answers on the review screen, question over answer */
+.fld-qa { margin: 2px 0 4px; display: grid; gap: 7px; }
+.fld-qa div { display: grid; gap: 1px; }
+.fld-qa dt { font-size: 11.5px; color: var(--ps-slate, #4A4D52); font-weight: 600; }
+.fld-qa dd { margin: 0; font-size: 14.5px; white-space: pre-wrap; }
+.fld-quote { white-space: pre-wrap; }
+.fld-pill { background: #eceae4; color: var(--ps-slate, #4A4D52); white-space: nowrap; }
+.fld-wtable { width: 100%; border-collapse: collapse; font-size: 13.5px; background: #fff; border-radius: 8px; overflow: hidden; }
+.fld-wtable th, .fld-wtable td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3e1db; vertical-align: top; }
+.fld-wtable th { font-size: 11px; color: var(--ps-slate, #4A4D52); font-weight: 600; }
+
+/* Phone notifications card */
+.fld-notif { margin-top: 16px; }
+.fld-notif > b { display: block; margin-bottom: 4px; }
+.fld-notif .fld-mut { margin: 0 0 8px; font-size: 13.5px; }
+.fld-notif-on { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.fld-notif-on .fld-ok { margin: 0; padding: 6px 10px; }

@@ -83,7 +83,23 @@ export type FieldAccident = {
   person_employer: string | null;
   what_doing: string | null;
   body_parts: string | null;
+  // Part One, the rest of the R4 (0106 columns, asked in PourSafe since 15 Nov)
+  person_title: string | null;
+  told_supervisor: boolean | null;
+  witness_names: string | null;
+  saw_doctor: boolean | null;
+  care_type: string | null;
+  care_provider: string | null;
+  care_phone: string | null;
+  care_on: string | null;
+  care_at: string | null;
+  prior_injury: boolean | null;
+  prior_injury_when: string | null;
   private_entered: boolean;
+  severity: string | null;
+  sup_body_part: string | null;
+  sup_nature: string | null;
+  sup_medical_required: boolean | null;
   sup_account: string | null;
   sup_cause: string | null;
   sup_regs: string | null;
@@ -141,12 +157,31 @@ export type FieldSignature = {
 export const signedText = (s: Pick<FieldStatement, "paper" | "paper_file_id" | "statement">) =>
   s.paper ? `[paper:${s.paper_file_id ?? ""}]` : (s.statement ?? "").trim();
 
-export const part2Text = (a: Pick<FieldAccident, "sup_account" | "sup_cause" | "sup_regs">) =>
-  [a.sup_account, a.sup_cause, a.sup_regs].map((x) => (x ?? "").trim()).join("\n");
+type Part2Fields = Pick<FieldAccident, "sup_account" | "sup_cause" | "sup_regs" | "sup_body_part" | "sup_nature" | "sup_medical_required">;
+
+/**
+ * Mirrors field_part2_text() (0265): every Part Two answer, in the form's
+ * order, each after its question; an unanswered one is left out.
+ */
+export const part2Text = (a: Part2Fields) => {
+  const q = (label: string, v: string | null | undefined) => ((v ?? "").trim() ? `${label}${(v ?? "").trim()}` : null);
+  return [
+    q("What part of the body was injured? ", a.sup_body_part),
+    q("What was the nature of the injury? ", a.sup_nature),
+    q("How the accident happened: ", a.sup_account),
+    q("What caused the event: ", a.sup_cause),
+    q("Were safety regulations in place and used? ", a.sup_regs),
+    a.sup_medical_required == null ? null : `Did the employee require medical attention? ${a.sup_medical_required ? "Yes" : "No"}`,
+  ].filter(Boolean).join("\n");
+};
+/** What 0260 signed, before 0265 — a signature made then still counts. */
+const part2TextV1 = (a: Part2Fields) => [a.sup_account, a.sup_cause, a.sup_regs].map((x) => (x ?? "").trim()).join("\n");
 
 /** Signed, and still matching what is on file now. */
 export const sigValid = (s: FieldStatement) => !!s.sig_png && s.sig_text === signedText(s);
-export const part2Valid = (a: FieldAccident) => !!a.sup_sig_png && a.sup_sig_text === part2Text(a);
+export const part2Valid = (a: FieldAccident) =>
+  !!a.sup_sig_png && (a.sup_sig_text === part2Text(a)
+    || (a.sup_sig_text === part2TextV1(a) && !a.sup_body_part && !a.sup_nature && a.sup_medical_required == null));
 
 /** Given and signed — or a recorded reason it can't be, which stands on its own. */
 export const statementDone = (s: FieldStatement) =>
@@ -165,6 +200,9 @@ export function caseItems(a: FieldAccident, statements: FieldStatement[], photos
     { key: "part2", label: t.itemPart2, done: !!(a.sup_cause ?? "").trim() && part2Valid(a) },
   ];
 }
+
+/** Part Three (0265), as field_part3() returns it — the Safety Director's. */
+export type Part3 = Record<string, string | number | boolean | null>;
 
 export const fmtWhen = (iso: string | null, locale = "en-US") =>
   iso ? new Date(iso).toLocaleString(locale, {
