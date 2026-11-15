@@ -319,3 +319,14 @@ button { font-family: inherit; }
 .fld-notif .fld-mut { margin: 0 0 8px; font-size: 13.5px; }
 .fld-notif-on { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .fld-notif-on .fld-ok { margin: 0; padding: 6px 10px; }
+
+/* Date and time boxes on iPhone: Safari gives them a width of their own, so
+   "When" ran off the right edge of the screen (15 Nov). Same width as every
+   other box, left-aligned like them. */
+.fld-f input, .fld-f select, .fld-f textarea, .fld-3 input { box-sizing: border-box; max-width: 100%; }
+.fld input[type="date"], .fld input[type="time"] {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%; min-width: 0; max-width: 100%;
+  box-sizing: border-box; text-align: left; min-height: 48px; line-height: 1.2;
+}
+.fld input[type="date"]::-webkit-date-and-time-value, .fld input[type="time"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.fld-2 > * { min-width: 0; }
