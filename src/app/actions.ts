@@ -56,7 +56,7 @@ export async function startReport(input: {
 const BASIC_KEYS = ["kind", "occurred_on", "occurred_at", "location", "person_name", "person_kind",
   "person_employer", "what_doing", "body_parts",
   // the rest of Part One (0106 columns; asked since 15 Nov)
-  "person_title", "supervisor_name", "told_supervisor", "witness_names", "saw_doctor", "care_type",
+  "supervisor_name",   // person_title: HR's only, set by field_set_employee (0266) "told_supervisor", "witness_names", "saw_doctor", "care_type",
   "care_provider", "care_phone", "care_on", "care_at", "prior_injury", "prior_injury_when",
 ] as const;  // never company_id — the Safety Director's (0261)
 const PART2_KEYS = ["sup_body_part", "sup_nature", "sup_account", "sup_cause", "sup_regs", "sup_medical_required"] as const;
@@ -89,8 +89,9 @@ export async function setPrivate(input: {
   const supabase = await createClient();
   const { error } = await supabase.rpc("field_set_private", {
     p_accident: input.id, p_dob: input.dob || null, p_phone: input.phone, p_address: input.address, p_employee_no: input.employeeNo,
-    // 0265's overload; without a sex given, the original five-argument call.
-    ...(input.sex ? { p_sex: input.sex } : {}),
+    // 0265/0266's six-argument version: keeps an ID picked from the list
+    // when the box is left empty.
+    p_sex: input.sex || null,
   });
   if (error) return { ok: false, error: error.message };
   bump(input.id);
@@ -289,6 +290,25 @@ export async function signOff(input: { id: string; checks: Checks; png: string }
   after(() => notify(supabase, input.id, "signed_off"));
   bump(input.id);
   return { ok: true, note: filed };
+}
+
+/* ---------- Picking the injured employee (0266) ---------- */
+
+/** Names, six-digit IDs and titles — that job's crew first. Nothing else from HR. */
+export async function employeeList(projectId: string): Promise<{ ok: boolean; error?: string; rows?: { id: string; name: string; employee_no: string | null; title: string | null; on_job: boolean }[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("field_employee_list", { p_project: projectId || null });
+  if (error) return { ok: false, error: error.message, rows: [] };
+  return { ok: true, rows: data ?? [] };
+}
+
+/** Link the report to an employee (or clear the link with null). */
+export async function setEmployee(input: { id: string; employeeId: string | null }): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("field_set_employee", { p_accident: input.id, p_employee: input.employeeId });
+  if (error) return { ok: false, error: error.message };
+  bump(input.id);
+  return { ok: true };
 }
 
 /* ---------- Part Three (0265) ---------- */

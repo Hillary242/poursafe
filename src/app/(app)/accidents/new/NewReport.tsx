@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { startReport } from "@/app/actions";
+import { setEmployee, startReport } from "@/app/actions";
+import { EmployeePicker, type Employee } from "@/app/EmployeePicker";
 import { useT } from "@/app/I18n";
 
 const today = () => {
@@ -21,6 +22,7 @@ export function NewReport({ jobs }: { jobs: { id: string; name: string }[] }) {
   const [on, setOn] = useState("");
   useEffect(() => setOn(today()), []);
   const [who, setWho] = useState("");
+  const [pick, setPick] = useState<Employee | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -28,6 +30,8 @@ export function NewReport({ jobs }: { jobs: { id: string; name: string }[] }) {
     setBusy(true); setErr(null);
     const r = await startReport({ projectId: job, kind, occurredOn: on || today(), person: who });
     if (!r.ok || !r.id) { setBusy(false); setErr(r.error ?? "That didn't start."); return; }
+    // Picked from the list: link the report to that employee (0266).
+    if (pick) await setEmployee({ id: r.id, employeeId: pick.id });
     router.push(`/accidents/${r.id}`);
   };
 
@@ -47,9 +51,9 @@ export function NewReport({ jobs }: { jobs: { id: string; name: string }[] }) {
       <label className="fld-f"><span>{t.when}</span>
         <input type="date" value={on} max={on ? today() : undefined} onChange={(e) => setOn(e.target.value)} />
       </label>
-      <label className="fld-f"><span>{kind === "near_miss" ? t.personInvolved : t.whoHurt}</span>
-        <input value={who} placeholder={t.fullName} autoComplete="off" onChange={(e) => setWho(e.target.value)} />
-      </label>
+      <EmployeePicker projectId={job || null} name={who} pickedNo={pick?.employee_no ?? (pick ? "—" : null)}
+        label={kind === "near_miss" ? t.personInvolved : t.whoHurt}
+        onType={setWho} onPick={(e) => { setPick(e); if (e) setWho(e.name); }} />
       {err && <div className="fld-alert">{err}</div>}
       <button className="fld-big" disabled={busy || !job || !who.trim()} onClick={go}>
         {busy ? t.starting : t.startReport}

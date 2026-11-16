@@ -135,6 +135,13 @@ export function Review({ a, statements, files, jobName, companies, signatures = 
             </select>
           ) : <b>{company?.name ?? "—"}</b>}
         </label>
+        {/* Picked from the employee list: HR's company, offered, never set without her (0266). */}
+        {editable && !companyId && a.field_suggested_company && companies.some((c) => c.id === a.field_suggested_company) && (
+          <div className="fld-suggest">
+            <span>{t.empSuggested(companies.find((c) => c.id === a.field_suggested_company)!.name)}</span>
+            <button type="button" className="fld-link" disabled={busy} onClick={() => pickCompany(a.field_suggested_company!)}>{t.empUseIt}</button>
+          </div>
+        )}
         {editable && <p className="fld-mut" style={{ margin: 0 }}>{t.companyHelp}</p>}
       </div>
 
@@ -260,6 +267,7 @@ function Body({ a, k, statements, photos, files, t, copies }: {
     <QA rows={[
       [t.qReporting, a.kind === "near_miss" ? t.kindNearMiss : t.injury],
       [t.qName, a.person_name],
+      [t.qEmployeeId, a.field_person_no],
       [t.qTitle, a.person_title],
       [t.theyAre, a.person_kind === "rc_employee" ? t.ourEmployee : `${kind}${a.person_employer ? ` — ${a.person_employer}` : ""}`],
       [t.qSupervisor, a.supervisor_name],

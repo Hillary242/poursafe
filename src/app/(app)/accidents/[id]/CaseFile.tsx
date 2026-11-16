@@ -9,9 +9,10 @@ import {
 } from "@/lib/field";
 import type { FieldDict } from "@/lib/fieldI18n";
 import {
-  addWitness, queuePhoto, recordNoSign, removeWitness, saveReport, saveStatement, setPrivate,
+  addWitness, queuePhoto, recordNoSign, removeWitness, saveReport, saveStatement, setEmployee, setPrivate,
   signPart2, signStatement, submitReport,
 } from "@/app/actions";
+import { EmployeePicker } from "@/app/EmployeePicker";
 import { SignPad } from "@/app/SignPad";
 import { LOCALE, useT } from "@/app/I18n";
 import { useLiveReport } from "@/app/Live";
@@ -257,6 +258,7 @@ function Basics({ a, busy, err, close, run, t }: Common) {
     care_phone: a.care_phone ?? "", care_on: a.care_on ?? "", care_at: a.care_at?.slice(0, 5) ?? "",
     prior_injury: a.prior_injury, prior_injury_when: a.prior_injury_when ?? "",
   });
+  const [pickedNo, setPickedNo] = useState<string | null>(a.field_person_no ?? null);
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((x) => ({ ...x, [k]: v }));
   const txt = (k: keyof typeof f) => ({ value: (f[k] as string) ?? "", onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => set(k, e.target.value as never) });
   return (
@@ -270,9 +272,18 @@ function Basics({ a, busy, err, close, run, t }: Common) {
           ))}
         </div>
       </div>
-      <div className="fld-2">
-        <label className="fld-f"><span>{t.qName}</span><input {...txt("person_name")} /></label>
-        <label className="fld-f"><span>{t.qTitle}</span><input {...txt("person_title")} /></label>
+      <p className="fld-info">{t.p1OnBehalf}</p>
+      <EmployeePicker projectId={a.project_id} name={f.person_name} pickedNo={pickedNo}
+        label={f.kind === "near_miss" ? t.personInvolved : t.qName}
+        onType={(v) => set("person_name", v)}
+        onPick={(e) => {
+          setPickedNo(e ? e.employee_no ?? "—" : null);
+          setF((x) => (e ? { ...x, person_name: e.name, person_title: e.title ?? "", person_kind: "rc_employee", person_employer: "" } : { ...x, person_title: "" }));
+          run(() => setEmployee({ id: a.id, employeeId: e?.id ?? null }));
+        }} />
+      {/* Only ever HR's title — it comes with the pick (her rule, 15 Nov). */}
+      <div className="fld-f fld-ro"><span>{t.qTitle}</span>
+        {f.person_title ? <b>{f.person_title}</b> : <i className="fld-mut">{t.titleFromHr}</i>}
       </div>
       <label className="fld-f"><span>{t.theyAre}</span>
         <select value={f.person_kind} onChange={(e) => set("person_kind", e.target.value)}>
@@ -340,7 +351,8 @@ function Private({ a, busy, err, close, run, t }: Common) {
         <label className="fld-f"><span>{t.qPhone}</span><input type="tel" value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} /></label>
       </div>
       <label className="fld-f"><span>{t.qAddress}</span><input value={v.address} onChange={(e) => setV({ ...v, address: e.target.value })} /></label>
-      <label className="fld-f"><span>{t.qEmployeeId}</span><input value={v.no} inputMode="numeric" onChange={(e) => setV({ ...v, no: e.target.value })} /></label>
+      <label className="fld-f"><span>{t.qEmployeeId}</span><input value={v.no} inputMode="numeric" placeholder={a.field_person_no ? t.empFromList(a.field_person_no) : undefined}
+        onChange={(e) => setV({ ...v, no: e.target.value })} /></label>
       <div className="fld-f"><span>{t.qSex}</span>
         <div className="fld-seg sm">
           <button type="button" className={v.sex === "male" ? "on" : ""} onClick={() => setV({ ...v, sex: v.sex === "male" ? "" : "male" })}>{t.male}</button>

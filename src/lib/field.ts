@@ -96,6 +96,9 @@ export type FieldAccident = {
   prior_injury: boolean | null;
   prior_injury_when: string | null;
   private_entered: boolean;
+  /** Picked from the employee list (0266): the six-digit ID, and the company HR has them under. */
+  field_person_no?: string | null;
+  field_suggested_company?: string | null;
   severity: string | null;
   sup_body_part: string | null;
   sup_nature: string | null;
