@@ -44,7 +44,7 @@ const en = {
   reportAccident: "Report an accident",
   reportAccidentSub: "Injury, illness or near miss",
   myReports: "My accident reports",
-  stillCollecting: (n: number) => `${n} still collecting`,
+  stillCollecting: (n: number) => `${n} in progress`,
   nothingOpen: "Nothing open",
   sentBackCount: (n: number) => `${n} sent back`,
   reviewReports: "Review reports",
@@ -52,7 +52,7 @@ const en = {
   nothingWaiting: "Nothing waiting",
   moreComing: "More sections are coming.",
   // Statuses
-  status: { draft: "Collecting", submitted: "Waiting for review", returned: "Sent back", reviewed: "Reviewed" } as Record<string, string>,
+  status: { draft: "In progress", submitted: "Waiting for review", returned: "Sent back", reviewed: "Reviewed" } as Record<string, string>,
   // Lists
   noneStarted: "You haven't started any yet.",
   unnamed: "Unnamed",

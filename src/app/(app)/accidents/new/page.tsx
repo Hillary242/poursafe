@@ -4,6 +4,8 @@ import { session } from "@/lib/session";
 import { fieldDict } from "@/lib/fieldLang";
 import { fieldJobs } from "@/lib/fieldJobs";
 import { NewReport } from "./NewReport";
+import { currentSite } from "@/lib/site";
+import { redirect } from "next/navigation";
 
 /**
  * Start a report: which job, what kind, when, who.
@@ -21,11 +23,14 @@ export default async function NewAccident() {
   const [{ t }, all] = await Promise.all([fieldDict(), fieldJobs(supabase, user!.id)]);
   const jobs = all.filter((j) => j.canReport && (!j.status || !/closed|complete|archiv/i.test(j.status)))
     .map((j) => ({ id: j.id, name: j.name }));
+  // The site picked on the home screen is the job (15 Nov). None picked: back to choose one.
+  const site = await currentSite(all);
+  if (jobs.length > 0 && !site) redirect("/");
 
   return (
     <>
       <div className="fld-head">
-        <Link href="/" className="fld-back" aria-label={t.back}>‹</Link>
+        <Link href="/accidents" className="fld-back" aria-label={t.back}>‹</Link>
         <h1 className="fld-h1">{t.reportAccident}</h1>
       </div>
       {jobs.length === 0 ? (
@@ -33,7 +38,7 @@ export default async function NewAccident() {
           <h2>{t.notOnJobsTitle}</h2>
           <p className="fld-mut">{t.notOnJobsBody}</p>
         </div>
-      ) : <NewReport jobs={jobs} />}
+      ) : <NewReport jobs={jobs} site={site ? { id: site.id, name: site.name } : null} />}
     </>
   );
 }

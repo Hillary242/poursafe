@@ -24,7 +24,7 @@ export function useSetLang() {
 /** Two speech bubbles, "Hi" and "Olá" — her pick (15 Nov): a conversation between languages. */
 export function LangIcon() {
   return (
-    <svg className="fld-langicon" width="32" height="26" viewBox="0 0 32 26" aria-hidden="true">
+    <svg className="fld-langicon" width="26" height="21" viewBox="0 0 32 26" aria-hidden="true">
       {/* "Hi": orange, tail bottom-left */}
       <path d="M3 1h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H8l-4 3v-3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z"
         fill="none" stroke="#F26B1D" strokeWidth="1.6" strokeLinejoin="round" />

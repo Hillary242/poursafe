@@ -10,7 +10,7 @@ import { FIELD_DICT, type FieldDict } from "@/lib/fieldI18n";
 
 export type FieldStatus = "draft" | "submitted" | "returned" | "reviewed";
 export const FIELD_STATUS: Record<FieldStatus, string> = {
-  draft: "Collecting", submitted: "Waiting for review", returned: "Sent back", reviewed: "Reviewed",
+  draft: "In progress", submitted: "Waiting for review", returned: "Sent back", reviewed: "Reviewed",
 };
 
 export const LANGS = ["English", "Spanish", "Portuguese", "Polish", "Other"] as const;

@@ -12,10 +12,10 @@ const today = () => {
 };
 
 /** The things a report can't start without. The rest is the case file. */
-export function NewReport({ jobs }: { jobs: { id: string; name: string }[] }) {
+export function NewReport({ jobs, site }: { jobs: { id: string; name: string }[]; site: { id: string; name: string } | null }) {
   const router = useRouter();
   const { t } = useT();
-  const [job, setJob] = useState(jobs.length === 1 ? jobs[0].id : "");
+  const [job, setJob] = useState(site?.id ?? (jobs.length === 1 ? jobs[0].id : ""));
   const [kind, setKind] = useState<"injury" | "illness" | "near_miss">("injury");
   // Filled in on the phone after it loads, so the server's date (UTC) and the
   // phone's never disagree about which day it is.
@@ -42,12 +42,16 @@ export function NewReport({ jobs }: { jobs: { id: string; name: string }[] }) {
           <button key={v} type="button" className={kind === v ? "on" : ""} onClick={() => setKind(v)}>{l}</button>
         ))}
       </div>
-      <label className="fld-f"><span>{t.job}</span>
-        <select value={job} onChange={(e) => setJob(e.target.value)}>
-          <option value="">{t.pickJob}</option>
-          {jobs.map((j) => <option key={j.id} value={j.id}>{j.name}</option>)}
-        </select>
-      </label>
+      {site ? (
+        <div className="fld-f fld-ro"><span>{t.site}</span><b>{site.name}</b></div>
+      ) : (
+        <label className="fld-f"><span>{t.job}</span>
+          <select value={job} onChange={(e) => setJob(e.target.value)}>
+            <option value="">{t.pickJob}</option>
+            {jobs.map((j) => <option key={j.id} value={j.id}>{j.name}</option>)}
+          </select>
+        </label>
+      )}
       <label className="fld-f"><span>{t.when}</span>
         <input type="date" value={on} max={on ? today() : undefined} onChange={(e) => setOn(e.target.value)} />
       </label>

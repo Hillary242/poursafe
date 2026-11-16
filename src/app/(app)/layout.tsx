@@ -9,6 +9,9 @@ import { FieldI18n } from "../I18n";
 import { Menu } from "../Menu";
 import { LangButton, LangChooser } from "../LangButton";
 import { BrandFonts, Wordmark } from "../Logo";
+import { SitePicker } from "../SitePicker";
+import { fieldJobs } from "@/lib/fieldJobs";
+import { currentSite, pickableSites } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 /* Phone-first: the width of the device, and no zoom-on-focus jump — every
@@ -27,10 +30,13 @@ export default async function PourSafeLayout({ children }: { children: React.Rea
   const { user, profile } = await session();
   if (!user) redirect("/sign-in");
   const supabase = await createClient();
-  const [{ data: allowed }, { data: director }, { lang, t }, chosen] = await Promise.all([
+  const [{ data: allowed }, { data: director }, { lang, t }, chosen, jobs] = await Promise.all([
     supabase.rpc("has_field_access"), supabase.rpc("is_safety_director"), fieldDict(), fieldLangChosen(),
+    fieldJobs(supabase, user.id),
   ]);
   const who = profile?.full_name || profile?.email || user.email || "";
+  const sites = pickableSites(jobs);
+  const site = await currentSite(jobs);
 
   return (
     <FieldI18n lang={lang}>
@@ -41,6 +47,10 @@ export default async function PourSafeLayout({ children }: { children: React.Rea
           {/* The language is always in sight; notifications and sign out live behind ☰ (her asks, 15 Nov). */}
           <LangButton lang={lang} />
           <Menu lang={lang} who={who} director={director === true} publicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""} />
+          {/* The site, big and on every screen (15 Nov). */}
+          {allowed === true && chosen && (
+            <SitePicker sites={sites.map((s) => ({ id: s.id, name: s.name }))} current={site?.id ?? null} />
+          )}
         </header>
         <main className="fld-main">
           {allowed === true ? (chosen ? children : <LangChooser />) : (
