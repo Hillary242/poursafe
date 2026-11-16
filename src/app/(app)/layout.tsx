@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { session } from "@/lib/session";
 import { FIELD_BRAND } from "@/lib/fieldBrand";
 import { fieldDict } from "@/lib/fieldLang";
-import { FieldI18n, LangSwitch } from "../I18n";
+import { FieldI18n } from "../I18n";
+import { Menu } from "../Menu";
 import { BrandFonts, Wordmark } from "../Logo";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,9 @@ export default async function PourSafeLayout({ children }: { children: React.Rea
   const { user, profile } = await session();
   if (!user) redirect("/sign-in");
   const supabase = await createClient();
-  const [{ data: allowed }, { lang, t }] = await Promise.all([supabase.rpc("has_field_access"), fieldDict()]);
+  const [{ data: allowed }, { data: director }, { lang, t }] = await Promise.all([
+    supabase.rpc("has_field_access"), supabase.rpc("is_safety_director"), fieldDict(),
+  ]);
   const who = profile?.full_name || profile?.email || user.email || "";
 
   return (
@@ -34,9 +37,8 @@ export default async function PourSafeLayout({ children }: { children: React.Rea
       <div className="fld">
         <header className="fld-top">
           <Link href="/" className="fld-brand" aria-label={FIELD_BRAND.name}><Wordmark width={128} reversed /></Link>
-          <LangSwitch lang={lang} />
-          <span className="fld-who">{who.split(" ")[0]}</span>
-          <form action="/auth/signout" method="post"><button className="fld-out" type="submit">{t.signOut}</button></form>
+          {/* Language, notifications and sign out live behind ☰ (her ask, 15 Nov). */}
+          <Menu lang={lang} who={who} director={director === true} publicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""} />
         </header>
         <main className="fld-main">
           {allowed === true ? children : (

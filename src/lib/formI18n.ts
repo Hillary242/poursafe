@@ -145,6 +145,7 @@ const en = {
   empUseIt: "Use it",
 
   // ── Phone notifications ──────────────────────────────────────────────
+  menu: "Menu",
   notifTitle: "Phone notifications",
   notifWhatDirector: "You'll be told when a report is started and when one is sent for review.",
   notifWhatForeman: "You'll be told when a report of yours is sent back or signed off.",
@@ -289,6 +290,7 @@ const es: FormDict = {
   empFromList: (no) => `${no} (de la lista de empleados)`,
   empSuggested: (co) => `Según RR. HH.: ${co}`,
   empUseIt: "Usar",
+  menu: "Menú",
   notifTitle: "Notificaciones en el teléfono",
   notifWhatDirector: "Se le avisará cuando se empiece un informe y cuando se envíe uno para revisión.",
   notifWhatForeman: "Se le avisará cuando un informe suyo sea devuelto o aprobado.",
@@ -430,6 +432,7 @@ const pt: FormDict = {
   empFromList: (no) => `${no} (da lista de funcionários)`,
   empSuggested: (co) => `Segundo o RH: ${co}`,
   empUseIt: "Usar",
+  menu: "Menu",
   notifTitle: "Notificações no telefone",
   notifWhatDirector: "Você será avisado quando um relatório for iniciado e quando um for enviado para revisão.",
   notifWhatForeman: "Você será avisado quando um relatório seu for devolvido ou aprovado.",
