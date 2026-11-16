@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { formDef, progress, type Answers, type Item } from "@/lib/forms";
+import { POUR_SECTION, formDef, progress, type Answers, type Item } from "@/lib/forms";
 import { saveForm, submitForm } from "../actions";
 import { SignPad } from "@/app/SignPad";
+import { PdfPages } from "@/app/PdfPages";
 import { LOCALE, useT } from "@/app/I18n";
 import type { FieldDict } from "@/lib/fieldI18n";
 
@@ -59,6 +60,30 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
   };
   useEffect(() => { if (state === "saved") { const h = setTimeout(() => setState("idle"), 1600); return () => clearTimeout(h); } }, [state]);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  // Opening a section folds the one above it shut, which moved the new one up
+  // under your thumb mid-way down. Bring its top into view, under the header
+  // and the section chips (15 Nov). Measured, not guessed: a long site name
+  // makes the header taller.
+  const tapped = useRef(false);
+  const headH = () => (document.querySelector(".fld-top") as HTMLElement | null)?.offsetHeight ?? 0;
+  useEffect(() => {
+    const put = () => document.documentElement.style.setProperty("--fld-head", `${headH()}px`);
+    put();
+    window.addEventListener("resize", put);
+    return () => window.removeEventListener("resize", put);
+  }, []);
+  useEffect(() => {
+    if (!tapped.current || !open) return;
+    tapped.current = false;
+    const el = document.getElementById(`fsec-${open}`);
+    if (!el) return;
+    const nav = (document.querySelector(".fld-secnav") as HTMLElement | null)?.offsetHeight ?? 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headH() - nav - 8 });
+    // Keep the chip for this section in view in the chip row.
+    document.getElementById(`fchip-${open}`)?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [open]);
+  /** Open a section and go to its top — from a chip, or "Next". */
+  const goTo = (id: string) => { tapped.current = true; setOpen(id); };
   const set = (id: string, v: unknown) => { setA((x) => ({ ...x, [id]: v })); queue(); };
 
   const submit = async () => {
@@ -72,7 +97,26 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
     router.refresh();
   };
 
+  /**
+   * "Are you pouring concrete today?" (her ask, 15 Nov) sets the concrete
+   * section in one tap: No answers it N/A throughout; Yes clears it to be
+   * answered fresh and goes there.
+   */
+  const pourItems = def.sections.find((x) => x.id === POUR_SECTION)?.items ?? [];
+  const setPour = (yes: boolean) => {
+    setA((x) => {
+      const n: Answers = { ...x, pour_today: yes };
+      for (const it of pourItems) {
+        if (it.kind === "yna") n[it.id] = yes ? null : "na";
+        else if (it.kind === "number") n[it.id] = yes ? "" : "0";
+      }
+      return n;
+    });
+    queue();
+    if (yes) goTo(POUR_SECTION);
+  };
   const p = progress(def, a);
+  const asPdf = form.status === "submitted" && !!pdfUrl;
   const loc = LOCALE[lang];
   return (
     <>
@@ -91,6 +135,46 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
       </div>
       {editable && p.total > 0 && <p className="fld-mut fld-progress">{t.formProgress(p.done, p.total)}</p>}
 
+      {/* Today, first: what changes the rest of the log (15 Nov). */}
+      {editable && form.form_key === "daily_log" && (
+        <div className="fld-card fld-today">
+          {typeof a.__from === "string" && <p className="fld-info fld-today-from">{t.formFromNote(new Date(`${a.__from as string}T12:00:00`).toLocaleDateString(loc, { month: "short", day: "numeric" }))}</p>}
+          <div className="fld-qrow">
+            <span className="fld-q">{t.formPourQ}</span>
+            <div className="fld-yna two">
+              <button type="button" className={`${a.pour_today === true ? "on " : ""}yes`} onClick={() => setPour(true)}>{t.yes}</button>
+              <button type="button" className={`${a.pour_today === false ? "on " : ""}na`} onClick={() => setPour(false)}>{t.no}</button>
+            </div>
+            {a.pour_today === false && <small className="fld-mut">{t.formPourNo}</small>}
+            {a.pour_today === true && <small className="fld-mut">{t.formPourYes}</small>}
+          </div>
+        </div>
+      )}
+
+      {/* The sections at a glance, always under the header: tap to go there.
+          Green when every question is answered, half when started. */}
+      {/* Signed: the form IS its PDF (her ask, 15 Nov) — a past day's, or anyone's
+          for a Safety Director. The questions are only for filling it in. */}
+
+      {!asPdf && def.sections.length > 1 && (
+        <nav className="fld-secnav" aria-label={t.formSections}>
+          {(state === "saving" || state === "saved") && (
+            <span className={`fld-savestate${state === "saving" ? " busy" : ""}`} role="status">{state === "saving" ? t.savingDots : t.saved}</span>
+          )}
+          {def.sections.map((s) => {
+            const sp = progress({ ...def, sections: [s] }, a);
+            const num = s.title.match(/^\d+/)?.[0];
+            const state = sp.total === 0 ? "" : sp.done === sp.total ? " done" : sp.done > 0 ? " part" : "";
+            return (
+              <button key={s.id} id={`fchip-${s.id}`} type="button" title={s.title}
+                className={`fld-secchip${state}${open === s.id ? " on" : ""}${num ? " num" : ""}`} onClick={() => goTo(s.id)}>
+                {num ?? s.title}
+              </button>
+            );
+          })}
+        </nav>
+      )}
+
       {form.status === "submitted" && (
         <div className="fld-ok">
           {t.formSignedBy(form.sig_name ?? "", form.sig_at ? new Date(form.sig_at).toLocaleString(loc, { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "")}
@@ -99,12 +183,14 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
         </div>
       )}
 
-      {def.sections.map((s) => {
+      {asPdf && <PdfPages url={pdfUrl!} loadingText={t.formPdfLoading} failText={t.formPdfFailed} />}
+
+      {!asPdf && def.sections.map((s) => {
         const sp = progress({ ...def, sections: [s] }, a);
         const isOpen = open === s.id;
         return (
-          <section key={s.id} className={`fld-fsec${isOpen ? " open" : ""}`}>
-            <button type="button" className="fld-fsec-h" onClick={() => setOpen(isOpen ? null : s.id)} aria-expanded={isOpen}>
+          <section key={s.id} id={`fsec-${s.id}`} className={`fld-fsec${isOpen ? " open" : ""}`}>
+            <button type="button" className="fld-fsec-h" onClick={() => { tapped.current = true; setOpen(isOpen ? null : s.id); }} aria-expanded={isOpen}>
               <b>{s.title}</b>
               {sp.total > 0 && <span className={`fld-fsec-n${sp.done === sp.total ? " done" : ""}`}>{sp.done}/{sp.total}</span>}
               <i aria-hidden>{isOpen ? "▴" : "▾"}</i>
@@ -113,6 +199,13 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
               <div className="fld-fsec-b">
                 {s.note && <p className="fld-mut fld-help">{s.note}</p>}
                 {s.items.map((it) => <Field key={it.id} it={it} a={a} set={set} ro={!editable} t={t} />)}
+                {(() => {
+                  const i = def.sections.findIndex((x) => x.id === s.id);
+                  const next = def.sections[i + 1];
+                  return next
+                    ? <button type="button" className="fld-big ghost fld-nextsec" onClick={() => goTo(next.id)}>{t.formNext(next.title)} ›</button>
+                    : editable && <button type="button" className="fld-big ghost fld-nextsec" onClick={() => { setOpen(null); setSigning(true); setTimeout(() => document.querySelector(".fld-formsign")?.scrollIntoView({ block: "start" }), 50); }}>{t.formSignSubmit} ›</button>;
+                })()}
               </div>
             )}
           </section>
@@ -121,7 +214,7 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
 
       {err && <div className="fld-alert">{err}</div>}
       {editable && !signing && (
-        <div className="fld-foot">
+        <div className="fld-formend">
           <button className="fld-big" onClick={() => setSigning(true)}>{t.formSignSubmit}</button>
         </div>
       )}
@@ -136,7 +229,7 @@ export function FormEditor({ form, mine, site, autoTicks, pdfUrl }: {
           <button className="fld-link" disabled={busy} onClick={() => setSigning(false)}>{t.back}</button>
         </div>
       )}
-      {(state === "saving" || state === "saved") && <div className={`fld-toast${state === "saving" ? " busy" : ""}`} role="status">{state === "saving" ? t.savingDots : t.saved}</div>}
+
     </>
   );
 }

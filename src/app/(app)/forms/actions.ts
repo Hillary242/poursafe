@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { fieldJobs } from "@/lib/fieldJobs";
 import { currentSite } from "@/lib/site";
-import { CARRY_FROM_ME, CARRY_FROM_SITE, INSPECTION_TICK, formDef, type Answers } from "@/lib/forms";
+import { CARRY_FROM_ME, CARRY_FROM_SITE, DAY_FRESH, INSPECTION_TICK, POUR_SECTION, formDef, type Answers } from "@/lib/forms";
 import { formPdf } from "@/lib/forms/pdf";
 
 type Result = { ok: boolean; error?: string; id?: string; note?: string };
@@ -19,7 +19,7 @@ const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/
  * person from the last Daily Log on this site; the CSM's name and
  * registration number from their own last log.
  */
-export async function startForm(key: string): Promise<Result> {
+export async function startForm(key: string, opts: { fromLast?: boolean } = {}): Promise<Result> {
   const def = formDef(key);
   if (!def) return { ok: false, error: "Unknown form." };
   const supabase = await createClient();
@@ -40,12 +40,19 @@ export async function startForm(key: string): Promise<Result> {
   const name = profile?.full_name || profile?.email || "";
   if (key === "daily_log") {
     const [{ data: lastHere }, { data: lastMine }] = await Promise.all([
-      supabase.from("poursafe_forms").select("answers").eq("form_key", "daily_log").eq("project_id", site.id)
+      supabase.from("poursafe_forms").select("answers, form_date").eq("form_key", "daily_log").eq("project_id", site.id)
         .eq("status", "submitted").order("form_date", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("poursafe_forms").select("answers").eq("form_key", "daily_log").eq("filled_by", user.id)
         .eq("status", "submitted").order("form_date", { ascending: false }).limit(1).maybeSingle(),
     ]);
     const here = (lastHere?.answers ?? {}) as Answers, mine = (lastMine?.answers ?? {}) as Answers;
+    // From the last log: the whole thing, less what is about today and the
+    // concrete section, which "Are you pouring concrete today?" sets.
+    if (opts.fromLast && lastHere) {
+      const pour = new Set(def.sections.find((s) => s.id === POUR_SECTION)?.items.map((i) => i.id) ?? []);
+      for (const [k, v] of Object.entries(here)) if (!DAY_FRESH.has(k) && !pour.has(k) && !k.startsWith("__") && k !== "pour_today") answers[k] = v;
+      answers.__from = lastHere.form_date;
+    }
     for (const k of CARRY_FROM_SITE) if (here[k] != null) answers[k] = here[k];
     for (const k of CARRY_FROM_ME) if (mine[k] != null) answers[k] = mine[k];
     answers.csm_name ??= name;

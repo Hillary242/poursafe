@@ -476,3 +476,91 @@ button.fld-siteband { width: 100%; border: 0; text-align: left; color: inherit; 
 .fld-qrows-h .fld-link { margin: 0; }
 .fld-formsign { margin-top: 14px; }
 .fld-formsign h2 { font-size: 18px; margin: 0 0 10px; }
+
+
+
+/* Moving around a long form (15 Nov): section chips under the header, Next at the end of each section */
+/* Inside the page's margins (it was cut off at both screen edges, 15 Nov). */
+.fld-secnav { position: sticky; top: var(--fld-head, 118px); z-index: 9; display: flex; gap: 6px; overflow-x: auto;
+  margin: 4px 0 6px; padding: 8px 0; background: var(--ps-concrete, #EDECE8); scrollbar-width: none;
+  box-shadow: 0 0 0 16px var(--ps-concrete, #EDECE8); clip-path: inset(0 -16px); }
+.fld-secnav::-webkit-scrollbar { display: none; }
+.fld-secchip { flex: none; border: 1.5px solid #bdbbb4; background: #fff; color: var(--ps-charcoal, #1F2124); border-radius: 999px;
+  min-height: 38px; padding: 0 13px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; max-width: 170px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fld-secchip.num { min-width: 38px; padding: 0 10px; }
+.fld-secchip.part { background: #fff3e6; border-color: #f2b27a; }
+.fld-secchip.done { background: #dcfce7; border-color: #86d39b; color: #166534; }
+.fld-secchip.on { background: var(--ps-charcoal, #1F2124); border-color: var(--ps-charcoal, #1F2124); color: #fff; }
+.fld-nextsec { margin-top: 14px; }
+.fld-formend { margin: 18px 0 8px; }
+
+/* "Saving…" / "Saved ✓" at the start of the chip bar, never over the answers (15 Nov) */
+.fld-savestate { flex: none; align-self: center; font-size: 12px; font-weight: 700; color: #166534; background: #dcfce7;
+  border-radius: 999px; padding: 6px 10px; }
+.fld-savestate.busy { color: var(--ps-slate, #4A4D52); background: #eceae4; }
+/* A signed form as its PDF */
+.fld-pdf { margin-top: 12px; }
+.fld-pdf-msg { text-align: center; padding: 24px 0; }
+.fld-pdfpage { display: block; background: #fff; border: 1px solid #d6d4ce; border-radius: 6px; margin-bottom: 10px; }
+
+/* Daily Forms as a month — the iPhone Calendar's layout (15 Nov) */
+.fld-cal { background: #fff; border: 1px solid #d6d4ce; border-radius: 14px; padding: 10px 8px 12px; }
+.fld-cal-h { display: flex; align-items: center; justify-content: space-between; padding: 2px 6px 8px; }
+.fld-cal-h b { font-size: 17px; }
+.fld-cal-nav { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; font-size: 24px;
+  color: var(--ps-orange, #F26B1D); text-decoration: none; font-weight: 700; }
+.fld-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; text-align: center; }
+.fld-cal-wd { font-size: 11.5px; font-weight: 700; color: var(--ps-slate, #4A4D52); padding-bottom: 4px; }
+.fld-cal-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 3px 0 4px; min-height: 48px;
+  text-decoration: none; color: var(--ps-charcoal, #1F2124); border-radius: 10px; }
+.fld-cal-n { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; font-size: 16px; font-weight: 600; }
+.fld-cal-day.today .fld-cal-n { color: var(--ps-orange, #F26B1D); font-weight: 800; }
+.fld-cal-day.on .fld-cal-n { background: var(--ps-charcoal, #1F2124); color: #fff; }
+.fld-cal-day.on.today .fld-cal-n { background: var(--ps-orange, #F26B1D); color: var(--ps-charcoal, #1F2124); }
+.fld-cal-dots { display: flex; gap: 3px; height: 6px; }
+.fld-cal-dots i { width: 6px; height: 6px; border-radius: 50%; }
+.fld-cal-dots i.ok { background: #16a34a; }
+.fld-cal-dots i.draft { background: var(--ps-orange, #F26B1D); }
+.fld-cal-today { display: block; text-align: center; margin-top: 6px; font-weight: 700; color: var(--ps-orange, #F26B1D); text-decoration: none; }
+.fld-cal-dayh { margin-top: 18px; }
+
+/* The day card under the calendar — the office calendar's, in PourSafe's colours (15 Nov) */
+.fld-daycard { margin-top: 14px; background: #fff; border: 1px solid #d6d4ce; border-radius: 14px; padding: 14px 14px 6px; }
+.fld-daycard-h { display: flex; flex-direction: column; padding-bottom: 10px; border-bottom: 1px solid #eceae4; }
+.fld-daycard-dow { font-size: 12px; font-weight: 700; color: var(--ps-orange, #F26B1D); text-transform: uppercase; letter-spacing: .05em; }
+.fld-daycard-date { font-size: 20px; font-weight: 700; color: var(--ps-charcoal, #1F2124); }
+.fld-daycard-empty { color: var(--ps-slate, #4A4D52); font-size: 14px; padding: 12px 0; margin: 0; }
+.fld-daycard-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0eee9;
+  color: inherit; text-decoration: none; min-height: 48px; }
+.fld-daycard-dot { flex: none; width: 11px; height: 11px; border-radius: 50%; }
+.fld-daycard-dot.ok { background: #16a34a; }
+.fld-daycard-dot.draft { background: var(--ps-orange, #F26B1D); }
+.fld-daycard-main { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.fld-daycard-main b { font-size: 15px; font-weight: 600; }
+.fld-daycard-main span { font-size: 12.5px; color: var(--ps-slate, #4A4D52); }
+.fld-daycard-open { flex: none; font-size: 13.5px; font-weight: 700; color: var(--ps-orange, #F26B1D); }
+.fld-daycard-start { padding: 12px 0 8px; }
+.fld-daycard-sub { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--ps-slate, #4A4D52); margin-bottom: 8px; }
+.fld-daycard .fld-formstart { margin-bottom: 4px; }
+.fld-startfrom { display: flex; flex-direction: column; gap: 6px; padding: 10px 2px 4px; }
+.fld-startfrom .fld-big { margin: 0; }
+/* Today, first, on the Daily Log */
+.fld-today { margin: 6px 0 4px; padding: 6px 14px; }
+.fld-today .fld-qrow { border: 0; }
+.fld-today-from { margin: 8px 0 0; }
+/* Apple Calendar's month header (her rule, 15 Nov: "match the apple calendar style") */
+.fld-cal { background: none; border: 0; padding: 0; }
+.fld-cal-h { display: flex; align-items: flex-end; justify-content: space-between; padding: 0 2px 10px; }
+.fld-cal-title { display: flex; flex-direction: column; }
+.fld-cal-title b { font-size: 28px; font-weight: 800; line-height: 1.05; letter-spacing: -.01em; color: var(--ps-charcoal, #1F2124); }
+.fld-cal-title span { font-size: 14px; font-weight: 600; color: var(--ps-orange, #F26B1D); }
+.fld-cal-seg { display: inline-flex; align-items: stretch; background: #e3e1db; border-radius: 9px; padding: 2px; }
+.fld-cal-seg a { display: grid; place-items: center; min-width: 36px; height: 34px; padding: 0 8px; border-radius: 7px;
+  color: var(--ps-charcoal, #1F2124); text-decoration: none; font-weight: 700; font-size: 18px; }
+.fld-cal-seg a.fld-cal-segtoday { font-size: 14px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.fld-cal-grid { border-top: 1px solid #d6d4ce; padding-top: 6px; }
+.fld-cal-wd { color: #8a8a86; font-weight: 600; }
+.fld-cal-day { border-top: 0; }
+.fld-start-h { margin-top: 22px; }
