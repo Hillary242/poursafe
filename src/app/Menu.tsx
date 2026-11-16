@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { LangSwitch, useT } from "@/app/I18n";
+import { useT } from "@/app/I18n";
 import { Notifications } from "@/app/Notifications";
 import type { FieldLang } from "@/lib/fieldI18n";
 
@@ -37,10 +37,6 @@ export function Menu({ lang, who, director, publicKey }: {
       {open && (
         <div className="fld-menu-panel" role="dialog" aria-label={t.menu}>
           {who && <div className="fld-menu-who">{who}</div>}
-          <div className="fld-menu-row">
-            <span>{t.language}</span>
-            <LangSwitch lang={lang} />
-          </div>
           <Notifications director={director} publicKey={publicKey} />
           <form action="/auth/signout" method="post">
             <button className="fld-big ghost fld-menu-out" type="submit">{t.signOut}</button>

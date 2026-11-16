@@ -14,6 +14,11 @@ export async function fieldLang(): Promise<FieldLang> {
   return first === "es" || first === "pt" ? first : "en";
 }
 
+/** Has this phone picked a language yet? Until it has, PourSafe asks first. */
+export async function fieldLangChosen(): Promise<boolean> {
+  return isFieldLang((await cookies()).get(FIELD_LANG_COOKIE)?.value);
+}
+
 export async function fieldDict() {
   const lang = await fieldLang();
   return { lang, t: FIELD_DICT[lang] };

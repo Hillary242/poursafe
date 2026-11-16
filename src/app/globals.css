@@ -364,3 +364,22 @@ button { font-family: inherit; }
 .fld-menu-panel .fld-lang button.on { color: var(--ps-charcoal, #1F2124); }
 .fld-menu-panel .fld-notif { margin: 0; }
 .fld-menu-panel .fld-menu-out { margin: 0; }
+
+/* The language button: two speech bubbles + the current code; the list of three (15 Nov) */
+.fld-langbtn-wrap { position: relative; flex: none; }
+.fld-langbtn { display: inline-flex; align-items: center; gap: 5px; height: 44px; padding: 0 9px; border: 1px solid rgba(255,255,255,.3);
+  border-radius: 10px; background: none; color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.fld-langlist { position: absolute; right: 0; top: calc(100% + 10px); z-index: 60; min-width: 170px; background: #fff;
+  border-radius: 12px; padding: 5px; box-shadow: 0 14px 34px rgba(0,0,0,.28); display: flex; flex-direction: column; }
+.fld-langlist button { border: 0; background: none; text-align: left; padding: 12px 12px; min-height: 46px; border-radius: 8px;
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ps-charcoal, #1F2124); cursor: pointer; }
+.fld-langlist button.on { background: #f1efea; }
+/* First open: choose your language */
+.fld-chooser { text-align: center; margin-top: 24px; color: var(--ps-charcoal, #1F2124); }
+.fld-chooser svg { width: 60px; height: 48px; color: var(--ps-charcoal, #1F2124); }
+.fld-chooser h2 { font-size: 20px; margin: 8px 0 14px; }
+.fld-chooser h2 span { font-size: 15px; font-weight: 600; color: var(--ps-slate, #4A4D52); }
+.fld-chooser .fld-big { margin: 8px 0; font-size: 18px; }
+@media (max-width: 370px) { .fld-langbtn { padding: 0 6px; } }
+.fld-chooser { --langicon-bg: #fff; }
+.fld-chooser .fld-langicon { width: 64px; height: 52px; }
