@@ -20,7 +20,8 @@ export default async function FieldHome() {
   const sites = pickableSites(jobs);
   const site = await currentSite(jobs);
 
-  const [{ count: open }, { count: sentBack }, { count: waiting }, { count: drawings }] = await Promise.all([
+  const day = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  const [{ count: open }, { count: sentBack }, { count: waiting }, { count: drawings }, { data: todaysLog }] = await Promise.all([
     site ? supabase.from("accidents").select("id", { count: "exact", head: true })
       .eq("reported_by", user!.id).eq("project_id", site.id).in("field_status", ["draft", "returned"])
       : Promise.resolve({ count: 0 }),
@@ -33,6 +34,10 @@ export default async function FieldHome() {
     site ? supabase.from("poursafe_drawings").select("id", { count: "exact", head: true })
       .eq("project_id", site.id).is("replaced_by", null).is("retired_at", null)
       : Promise.resolve({ count: 0 }),
+    // Today's Daily Log on this site (0268), so the tile says where it stands.
+    site ? supabase.from("poursafe_forms").select("status").eq("filled_by", user!.id).eq("project_id", site.id)
+      .eq("form_key", "daily_log").eq("form_date", day).limit(1).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   return (
@@ -58,7 +63,7 @@ export default async function FieldHome() {
           <Link href="/forms" className="fld-tile">
             <span className="fld-tile-ic" aria-hidden>📝</span>
             <b>{t.secForms}</b>
-            <small>{t.comingSoon}</small>
+            <small>{todaysLog ? (todaysLog.status === "submitted" ? t.formLogDone : t.formLogContinue) : t.formLogStart}</small>
           </Link>
           <Link href="/drawings" className="fld-tile">
             <span className="fld-tile-ic" aria-hidden>📐</span>
