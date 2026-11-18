@@ -564,3 +564,9 @@ button.fld-siteband { width: 100%; border: 0; text-align: left; color: inherit; 
 .fld-cal-wd { color: #8a8a86; font-weight: 600; }
 .fld-cal-day { border-top: 0; }
 .fld-start-h { margin-top: 22px; }
+
+/* One safety drawing, in PourSafe's own viewer (18 Nov) */
+.fld-drawview-h { overflow-wrap: anywhere; }
+.fld-drawview-meta { margin: 2px 0 0; }
+.fld-drawview-img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid #d6d4ce; border-radius: 6px; margin-top: 12px; }
+.fld-drawview-dl { margin: 6px 0 24px; }

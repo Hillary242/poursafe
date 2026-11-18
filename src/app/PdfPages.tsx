@@ -9,7 +9,11 @@ import { useEffect, useRef, useState } from "react";
  * canvas; its worker is served by PourSafe itself (public/pdfjs, copied at
  * build), so it can't be a different version from the library.
  */
-export function PdfPages({ url, failText, loadingText }: { url: string; failText: string; loadingText: string }) {
+export function PdfPages({ url, failText, loadingText, sharp = false }: {
+  url: string; failText: string; loadingText: string;
+  /** Drawings: drawn at several times the screen's width so pinch-zoom stays readable (capped so a phone doesn't run out of memory). */
+  sharp?: boolean;
+}) {
   const box = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"loading" | "ok" | "fail">("loading");
 
@@ -31,7 +35,10 @@ export function PdfPages({ url, failText, loadingText }: { url: string; failText
           const page = await doc.getPage(n);
           if (dead) return;
           const base = page.getViewport({ scale: 1 });
-          const vp = page.getViewport({ scale: (width / base.width) * ratio });
+          let scale = (width / base.width) * (sharp ? Math.max(ratio, 1) * 2.5 : ratio);
+          const MAX = 9_000_000; // pixels per page — Android Chrome refuses much bigger canvases
+          if (base.width * base.height * scale * scale > MAX) scale = Math.sqrt(MAX / (base.width * base.height));
+          const vp = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           canvas.width = Math.floor(vp.width);
           canvas.height = Math.floor(vp.height);
